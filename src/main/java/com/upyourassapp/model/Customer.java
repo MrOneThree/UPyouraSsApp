@@ -5,16 +5,11 @@ import java.util.Objects;
 /**
  * @author Kirill Popov
  */
-public class Customer {
+public class Customer {     //This is a plain model. It does not contain any business logic. Just stores data as an individual customer entry.
     private String name;
     private String email;
 
     public Customer() {
-    }
-
-    public Customer(String name, String email) {
-        this.name = name;
-        this.email = email;
     }
 
     public String getName() {

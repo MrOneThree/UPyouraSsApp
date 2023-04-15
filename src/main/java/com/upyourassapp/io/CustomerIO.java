@@ -11,16 +11,19 @@ import java.util.Scanner;
  */
 public class CustomerIO implements IO {
 
-    private static CustomerIO customerIO;
-    private final CustomerService service;
+//    This is console IO for every implemented functional instance.
+//    If you want to expand functionality with orders, routes, vehicles etc. this is the way to present it to users
+
+    private static CustomerIO customerIO; //Singleton
+    private final CustomerService service;  //Can't autowire, inject service layer.
 
     private CustomerIO() {
         this.service = CustomerService.getInstance();
-    }
+    } //Singleton
 
-    public static CustomerIO getInstance() {
+    public static CustomerIO getInstance() {    //Singleton impl
         if (Objects.isNull(customerIO)) {
-            return new CustomerIO();
+            customerIO = new CustomerIO();
         }
         return customerIO;
     }
@@ -28,10 +31,11 @@ public class CustomerIO implements IO {
     @Override
     public String getName() {
         return "Customers";
-    }
+    }   //No spring - no beans. Has to be a pointer on exact IO from the list.
 
     @Override
     public void init() {
+        System.out.println("/-------------------------------------/");
         System.out.println("Welcome to Customers data base!");
     }
 
@@ -64,7 +68,6 @@ public class CustomerIO implements IO {
                 System.out.println("Here's the list of all customers:\n");
                 service.list()
                         .forEach((key, value) -> System.out.printf("id: %d, name: %s, email: %s;\n", key, value.getName(), value.getEmail()));
-                System.out.println("/-------------------------------------/");
             }
             case "fetch" -> {
                 System.out.println("Enter customer id:");
@@ -80,7 +83,7 @@ public class CustomerIO implements IO {
 
                 try {
                     Customer customer = service.find(id);
-                    System.out.printf("\nid: %d, name: %s, email: %s\n", id, customer.getName(), customer.getEmail());
+                    System.out.printf("id: %d, name: %s, email: %s\n", id, customer.getName(), customer.getEmail());
                 } catch (RuntimeException e) {
                     System.err.println(e.getMessage());
                 }

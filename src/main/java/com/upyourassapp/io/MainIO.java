@@ -9,22 +9,24 @@ import java.util.Scanner;
  * @author Kirill Popov
  */
 public class MainIO implements IO{
-    private static MainIO mainIO;
+    private static MainIO mainIO;   //Singleton
+    private final List<IO> ios;     //List of available IOs. Better be autowired, but spring is not available.
+    private IO currentIO = null;    //Current IO tracker. If null -> opens main IO.
+    private boolean running = false;    //Running state. If false -> close app.
 
-    private final List<IO> ios;
-    private IO currentIO = null;
-    private boolean running = false;
-
-    private MainIO() {
+    private MainIO() {  //When singleton, constructor must be private.
         ios = new ArrayList<>(
-                List.of(CustomerIO.getInstance()) //sorry no @autowired in java core ¯\_(ツ)_/¯
+                List.of(
+                        CustomerIO.getInstance()
+                //Insert new IOs HERE
+                )                        //sorry no @autowired in java core ¯\_(ツ)_/¯
         );
         running = true;
     }
 
-    public static MainIO getInstance() {
+    public static MainIO getInstance() {    //Singleton impl. Returns the existing instance or instantiates new.
         if (Objects.isNull(mainIO)) {
-            return new MainIO();
+            mainIO = new MainIO();
         }
         return mainIO;
     }
@@ -64,10 +66,9 @@ public class MainIO implements IO{
     }
 
     private void listBases() {
-        ios.forEach(io -> {
-            System.out.println(io.getName());
-            System.out.println("/--------------------/");
-        });
+        System.out.println("/--------------------/");
+        ios.forEach(io -> System.out.println(io.getName()));
+        System.out.println("/--------------------/");
     }
     @Override
     public String requestInput() {
@@ -91,9 +92,8 @@ public class MainIO implements IO{
         if (!Objects.isNull(currentIO)) {
             currentIO.parseIO(s);
         } else {
-            ios.stream().filter(io -> io.getName().equalsIgnoreCase(s)).findFirst().ifPresentOrElse(io -> {
-                        currentIO = io;
-                    },
+            ios.stream().filter(io -> io.getName().equalsIgnoreCase(s)).findFirst()
+                    .ifPresentOrElse(io -> currentIO = io,
                     () -> {
                         System.err.println("No such base found!");
                         try {
